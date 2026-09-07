@@ -48,28 +48,6 @@ CREATE TABLE sport_modes (
     mode_name VARCHAR(50) UNIQUE NOT NULL COMMENT '運動模式名稱 (爬山/健走/單車)',
     description VARCHAR(500) COMMENT '運動模式描述',
     icon_url VARCHAR(500) COMMENT '運動模式圖標URL',
-    
-    -- 爬山、健走、單車的推薦條件
-    recommended_temp_min DECIMAL(5, 2) COMMENT '推薦最低溫度 (°C)',
-    recommended_temp_max DECIMAL(5, 2) COMMENT '推薦最高溫度 (°C)',
-    recommended_wind_speed_max DECIMAL(5, 2) COMMENT '推薦最大風速 (m/s)',
-    recommended_humidity_min INT COMMENT '推薦最低濕度 (%)',
-    recommended_humidity_max INT COMMENT '推薦最高濕度 (%)',
-    recommended_precipitation_prob_max INT COMMENT '推薦最大降雨機率 (%)',
-    
-    -- 警告和危險閾值
-    warning_temp_max DECIMAL(5, 2) COMMENT '警告最高溫度 (°C)',
-    warning_temp_min DECIMAL(5, 2) COMMENT '警告最低溫度 (°C)',
-    warning_wind_speed_max DECIMAL(5, 2) COMMENT '警告最大風速 (m/s)',
-    warning_humidity_max INT COMMENT '警告最高濕度 (%)',
-    warning_precipitation_prob INT COMMENT '警告降雨機率 (%)',
-    
-    danger_temp_max DECIMAL(5, 2) COMMENT '危險最高溫度 (°C)',
-    danger_temp_min DECIMAL(5, 2) COMMENT '危險最低溫度 (°C)',
-    danger_wind_speed_max DECIMAL(5, 2) COMMENT '危險最大風速 (m/s)',
-    danger_visibility_min INT COMMENT '危險最低能見度 (m)',
-    danger_precipitation_prob INT COMMENT '危險降雨機率 (%)',
-    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='運動模式表';
@@ -436,65 +414,11 @@ CREATE TABLE weather_alerts (
 -- 14. 創建初始運動模式數據
 -- =====================================================
 INSERT INTO sport_modes (
-    mode_name, description, icon_url,
-    recommended_temp_min, recommended_temp_max,
-    recommended_wind_speed_max,
-    recommended_humidity_min, recommended_humidity_max,
-    recommended_precipitation_prob_max,
-    warning_temp_max, warning_temp_min,
-    warning_wind_speed_max, warning_humidity_max,
-    warning_precipitation_prob,
-    danger_temp_max, danger_temp_min,
-    danger_wind_speed_max, danger_visibility_min,
-    danger_precipitation_prob
+    mode_name, description, icon_url
 ) VALUES
--- 爬山 (Mountaineering)
-(
-    '爬山', '登山健行，需要注意高海拔、低溫和陡坡風險',
-    'icon_mountaineering.png',
-    5.0, 20.0,  -- 推薦溫度 5-20°C
-    10.0,  -- 推薦最大風速 10 m/s
-    40, 80,  -- 推薦濕度 40-80%
-    30,  -- 推薦最大降雨機率 30%
-    0.0, -5.0,  -- 警告溫度 > 0°C 或 < -5°C
-    15.0, 85,  -- 警告風速 > 15 m/s, 濕度 > 85%
-    60,  -- 警告降雨機率 > 60%
-    35.0, -10.0,  -- 危險溫度 > 35°C 或 < -10°C
-    20.0, 100,  -- 危險風速 > 20 m/s, 能見度 < 100m
-    75  -- 危險降雨機率 > 75%
-),
-
--- 健走 (Walking)
-(
-    '健走', '休閒健走，適合各年齡層，需避免高溫和暴雨',
-    'icon_walking.png',
-    15.0, 25.0,  -- 推薦溫度 15-25°C
-    8.0,  -- 推薦最大風速 8 m/s
-    40, 70,  -- 推薦濕度 40-70%
-    40,  -- 推薦最大降雨機率 40%
-    35.0, 5.0,  -- 警告溫度 > 35°C 或 < 5°C
-    12.0, 80,  -- 警告風速 > 12 m/s, 濕度 > 80%
-    70,  -- 警告降雨機率 > 70%
-    40.0, 0.0,  -- 危險溫度 > 40°C 或 < 0°C
-    15.0, 500,  -- 危險風速 > 15 m/s, 能見度 < 500m
-    80  -- 危險降雨機率 > 80%
-),
-
--- 單車 (Cycling)
-(
-    '單車', '自行車騎乘，需要注意風力和路面濕度',
-    'icon_cycling.png',
-    10.0, 25.0,  -- 推薦溫度 10-25°C
-    8.0,  -- 推薦最大風速 8 m/s
-    30, 80,  -- 推薦濕度 30-80%
-    40,  -- 推薦最大降雨機率 40%
-    28.0, 5.0,  -- 警告溫度 > 28°C 或 < 5°C
-    12.0, 85,  -- 警告風速 > 12 m/s, 濕度 > 85%
-    50,  -- 警告降雨機率 > 50%
-    35.0, 0.0,  -- 危險溫度 > 35°C 或 < 0°C
-    15.0, 500,  -- 危險風速 > 15 m/s, 能見度 < 500m
-    70  -- 危險降雨機率 > 70%
-);
+('爬山', '登山健行，需要注意高海拔、低溫和陡坡風險', 'icon_mountaineering.png'),
+('健走', '休閒健走，適合各年齡層，需避免高溫和暴雨', 'icon_walking.png'),
+('單車', '自行車騎乘，需要注意風力和路面濕度', 'icon_cycling.png');
 
 -- =====================================================
 -- 15. 創建必要的索引以提升查詢性能
