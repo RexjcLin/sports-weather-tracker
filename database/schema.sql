@@ -146,7 +146,7 @@ CREATE TABLE gps_points (
     INDEX idx_activity_id (activity_id),
     INDEX idx_timestamp (timestamp),
     INDEX idx_sequence (activity_id, sequence_order),
-    SPATIAL INDEX sp_idx_location (POINT(latitude, longitude))
+    INDEX idx_location (latitude, longitude)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='GPS軌跡點位表';
 
 -- =====================================================
