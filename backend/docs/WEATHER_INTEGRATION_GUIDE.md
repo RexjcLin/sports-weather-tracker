@@ -20,7 +20,7 @@
 
 ### 1. 申請中央氣象局 API Key
 
-1. 訪問 [中央氣象局開放資料平台](https://opendata.cwb.gov.tw/)
+1. 訪問 [中央氣象局開放資料平台](https://opendata.cwa.gov.tw/index)
 2. 點擊「會員中心」→「API 申請」
 3. 填寫應用資訊並提交申請
 4. 審核通過後會收到 **API Key**
