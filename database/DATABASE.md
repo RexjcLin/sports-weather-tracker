@@ -680,6 +680,95 @@ CALL update_user_statistics(user_id, mode_id, date);
 
 ## 安裝和使用
 
+### 樹梅派部署（MariaDB）
+
+以下做法假設樹梅派是資料庫主機，後端可以在同一台樹梅派或區域網路中的另一台電腦執行。建議使用 MariaDB，與本專案的 MySQL Schema 相容。
+
+#### 1. 在樹梅派安裝並啟動 MariaDB
+
+```bash
+sudo apt update
+sudo apt install -y mariadb-server
+sudo systemctl enable --now mariadb
+sudo mariadb-secure-installation
+```
+
+查詢樹梅派區域網路 IP，後面會用到：
+
+```bash
+hostname -I
+```
+
+#### 2. 建立資料庫與網路連線帳號
+
+先在樹梅派執行 Schema：
+
+```bash
+mysql -u root -p < database/schema.sql
+```
+
+接著登入 MariaDB，將 `<後端主機IP>` 換成執行 FastAPI 的電腦 IP。若後端就在樹梅派，使用 `localhost`：
+
+```sql
+CREATE USER 'sports_app'@'<後端主機IP>' IDENTIFIED BY '<強密碼>';
+GRANT ALL PRIVILEGES ON sports_weather_tracker.* TO 'sports_app'@'<後端主機IP>';
+FLUSH PRIVILEGES;
+```
+
+只在同一台樹梅派執行後端時，不需要開放遠端資料庫帳號；可改用：
+
+```sql
+CREATE USER 'sports_app'@'localhost' IDENTIFIED BY '<強密碼>';
+GRANT ALL PRIVILEGES ON sports_weather_tracker.* TO 'sports_app'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+#### 3. 允許區域網路連線（僅後端不在樹梅派時）
+
+編輯 MariaDB 設定，將綁定位址改為樹梅派的區域網路介面：
+
+```bash
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+
+設定：
+
+```ini
+bind-address = 0.0.0.0
+```
+
+重啟服務；若啟用了 UFW，只開放後端主機的 3306 連線：
+
+```bash
+sudo systemctl restart mariadb
+sudo ufw allow from <後端主機IP> to any port 3306 proto tcp
+```
+
+#### 4. 設定 FastAPI 後端
+
+在後端主機的 `backend/.env` 設定樹梅派 IP、資料庫帳號和密碼：
+
+```dotenv
+DATABASE_URL=mysql+aiomysql://sports_app:<強密碼>@<樹梅派IP>:3306/sports_weather_tracker?charset=utf8mb4
+```
+
+密碼包含 `@`、`:`、`/` 或 `#` 時，必須先做 URL encoding；最簡單的方式是使用只含英數字與 `_` 的強密碼。啟動後端：
+
+```bash
+cd backend
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+#### 5. 測試連線
+
+在後端主機測試 TCP 連線：
+
+```bash
+nc -vz <樹梅派IP> 3306
+```
+
+再啟動 FastAPI。應用程式啟動時會建立 ORM 缺少的表，正式環境仍建議先執行完整的 `schema.sql`，因為它包含索引、外鍵與初始資料。
+
 ### 1. 創建資料庫
 
 ```bash
